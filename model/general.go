@@ -5,5 +5,5 @@ import (
 )
 
 var (
-	Version = os.Getenv("APIS-VERSION")
+	Version = os.Getenv("APIS_VERSION")
 )

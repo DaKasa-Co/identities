@@ -20,11 +20,15 @@ var (
 )
 
 type Users struct {
-	ID       uuid.UUID
-	Name     string
-	Username string
-	Password string
-	Birthday time.Time // maybe needs change
-	Avatar   string    // needs change
-	UpdateAt time.Time
+	ID          uuid.UUID
+	Name        string
+	Username    string
+	Email       string
+	Password    string
+	Birthday    time.Time
+	PhoneNumber int
+	Address     string
+	Avatar      string
+	UpdateAt    time.Time
+	CreatedAt   time.Time
 }

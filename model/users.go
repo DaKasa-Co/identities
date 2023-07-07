@@ -6,14 +6,18 @@ import (
 
 type Identity struct {
 	ID           uuid.UUID    `json:"id,omitempty"`
-	NomeCompleto string       `json:"nomeCompleto,omitempty"`
+	Name         string       `json:"name,omitempty"`
 	Username     string       `json:"username,omitempty"`
 	Email        string       `json:"email,omitempty"`
 	Password     string       `json:"password,omitempty"`
 	Address      string       `json:"address,omitempty"`
+	PhoneNumber  int          `json:"phoneNumber,omitempty"`
+	Birthday     string       `json:"birthday,omitempty"`
 	Avatar       string       `json:"avatar,omitempty"`
 	SocialMedias SocialMedias `json:"socialMedias,omitempty"`
 	Stamp        Stamp        `json:"stamp,omitempty"`
+	CreatedAt    string       `json:"createdAt,omitempty"`
+	UpdatedAt    string       `json:"updatedAt,omitempty"`
 }
 
 type Stamp struct {

@@ -5,11 +5,24 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/DaKasa-Co/identities/model"
+	database "github.com/DaKasa-Co/identities/psql"
 	"github.com/gin-gonic/gin"
 )
 
 func CheckRequiredFieldExists(key string, value interface{}) error {
-	if value != nil {
+	var res bool
+
+	switch value.(type) {
+	case string:
+		res = value == ""
+	case int:
+		res = value == 0
+	default:
+		res = value == nil
+	}
+
+	if res {
 		return fmt.Errorf("field %s is required", key)
 	}
 
@@ -69,4 +82,57 @@ func CheckBirthday(birth time.Time) error {
 
 func ErrorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
+	requiredFields := map[string]interface{}{
+		"name":     infos.Name,
+		"username": infos.Username,
+		"email":    infos.Email,
+		"password": infos.Password,
+		"birthday": infos.Birthday,
+		"phone":    infos.PhoneNumber,
+	}
+
+	for k, v := range requiredFields {
+		if err := CheckRequiredFieldExists(k, v); err != nil {
+			return database.Users{}, err
+		}
+	}
+
+	birthday, err := time.Parse(time.DateOnly, infos.Birthday)
+	if err != nil {
+		return database.Users{}, err
+	}
+
+	if err = CheckIfNotHasSpecialCharacters("name", infos.Name); err != nil {
+		return database.Users{}, err
+	}
+
+	if err = CheckIsValidUsername(infos.Username); err != nil {
+		return database.Users{}, err
+	}
+
+	if err = CheckIsValidEmail(infos.Email); err != nil {
+		return database.Users{}, err
+	}
+
+	if err = CheckIsValidPassword(infos.Password); err != nil {
+		return database.Users{}, err
+	}
+
+	if err = CheckBirthday(birthday); err != nil {
+		return database.Users{}, err
+	}
+
+	return database.Users{
+		Name:        infos.Name,
+		Username:    infos.Username,
+		Email:       infos.Email,
+		Password:    infos.Password,
+		Birthday:    birthday,
+		PhoneNumber: infos.PhoneNumber,
+		Address:     infos.Address,
+		Avatar:      infos.Avatar,
+	}, nil
 }

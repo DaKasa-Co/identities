@@ -20,15 +20,15 @@ var (
 )
 
 type Users struct {
-	ID          uuid.UUID
-	Name        string
-	Username    string
-	Email       string
-	Password    string
-	Birthday    time.Time
-	PhoneNumber int
-	Address     string
-	Avatar      string
-	UpdateAt    time.Time
-	CreatedAt   time.Time
+	ID          uuid.UUID `field:"id"`
+	Name        string    `field:"name"`
+	Username    string    `field:"username"`
+	Email       string    `field:"email"`
+	Password    string    `field:"password"`
+	Birthday    time.Time `field:"birthday"`
+	PhoneNumber int       `field:"phonenumber"`
+	Address     string    `field:"address"`
+	Avatar      string    `field:"picture"`
+	UpdateAt    time.Time `field:"timestamp_update"`
+	CreatedAt   time.Time `field:"timestamp_created"`
 }

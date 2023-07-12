@@ -16,7 +16,7 @@ func Authenticate() gin.HandlerFunc {
 
 func CoreAuthenticate(c *gin.Context) {
 	apiKey := c.GetHeader("X-API-Key")
-	if apiKey == os.Getenv("API-KEY") {
+	if apiKey == os.Getenv("API_KEY") {
 		c.Next()
 		return
 	}

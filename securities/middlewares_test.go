@@ -13,7 +13,7 @@ import (
 
 // TestCoreAuthentication tests the middleware of api key header auth.
 func TestCoreAuthenticate(t *testing.T) {
-	t.Setenv("API-KEY", "someGoodAPIKey")
+	t.Setenv("API_KEY", "someGoodAPIKey")
 	t.Run("ErrorWrongKey", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
@@ -37,7 +37,7 @@ func TestCoreAuthenticate(t *testing.T) {
 			Header: make(http.Header),
 		}
 
-		req.Header.Add("X-API-Key", os.Getenv("API-KEY"))
+		req.Header.Add("X-API-Key", os.Getenv("API_KEY"))
 		c.Request = req
 		CoreAuthenticate(c)
 		assert.Equal(t, 200, w.Code)

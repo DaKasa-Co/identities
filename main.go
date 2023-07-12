@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	r := gin.Default()
+	r := gin.New()
 	r.Use(securities.Authenticate())
 
 	var req model.Identity

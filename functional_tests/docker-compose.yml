@@ -1,0 +1,30 @@
+# DO NOT USE THIS FILE IN PRODUCTION!
+# THIS FILE WAS CREATED FOR ONLY TESTS PURPOSE
+
+version: '3'
+services:
+  database:
+    image: postgres:15.3
+    ports:
+      - 5432:5432
+
+    environment:
+      - POSTGRES_DB=identities
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=someAwesomePassword
+
+  api-identities:
+    image: identities:latest
+    network_mode: host
+    depends_on:
+      - database
+    environment:
+      - APIS_VERSION=v1
+      - DB_NAME=identities
+      - DB_USER=postgres
+      - DB_HOST=localhost
+      - DB_PASSWORD=someAwesomePassword
+      - JWT_KEY=someEncryptedKey
+      - API_KEY=SomeApiKey

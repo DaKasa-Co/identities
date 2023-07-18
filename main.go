@@ -14,12 +14,11 @@ import (
 )
 
 func main() {
-	r := gin.New()
+	r := gin.Default()
 	r.Use(securities.Authenticate())
 
-	var req model.Identity
-
 	r.POST("/"+model.Version+"/login", func(c *gin.Context) {
+		req := model.Identity{}
 		err := c.ShouldBindJSON(&req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, client.ErrorResponse(err))
@@ -83,11 +82,12 @@ func main() {
 			return
 		}
 
-		c.Header("jwt", jwt)
+		c.Header("X-JWT", jwt)
 		c.JSON(http.StatusOK, nil)
 	})
 
 	r.POST("/"+model.Version+"/register", func(c *gin.Context) {
+		req := model.Identity{}
 		err := c.ShouldBindJSON(&req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, client.ErrorResponse(err))

@@ -51,7 +51,7 @@ jobs:
 
       - name: Running Functional Tests
         run: |
-          cd functional_test
+          cd functional_tests
           docker-compose up -d
           sleep 15
           go run test.go

@@ -1,0 +1,60 @@
+name: Deploy api-identities PRD
+
+on:
+  pull_request: 
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '==1.20.5'
+          cache: false
+
+      - name: Running Unit Tests
+        run: go test ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '==1.20.5'
+          cache: false
+      - uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.53
+
+  deploy:
+     runs-on: ubuntu-latest
+     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '==1.20.5'
+          cache: false
+
+      - name: Building images
+        run: |
+          docker build . -t identities:latest
+          docker build . -f Dockerfile.database -t database:latest
+
+      - name: Running Functional Tests
+        run: |
+          cd functional_test
+          docker-compose up -d
+          sleep 15
+          go run test.go
+
+      # TO DO: The real deploy goes here
+

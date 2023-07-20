@@ -21,7 +21,6 @@ services:
     depends_on:
       - database
     environment:
-      - APIS_VERSION=v1
       - DB_NAME=identities
       - DB_USER=postgres
       - DB_HOST=localhost

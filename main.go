@@ -17,7 +17,7 @@ func main() {
 	r := gin.Default()
 	r.Use(securities.Authenticate())
 
-	r.POST("/"+model.Version+"/login", func(c *gin.Context) {
+	r.POST("/api/login", func(c *gin.Context) {
 		req := model.Identity{}
 		err := c.ShouldBindJSON(&req)
 		if err != nil {
@@ -86,7 +86,7 @@ func main() {
 		c.JSON(http.StatusOK, nil)
 	})
 
-	r.POST("/"+model.Version+"/register", func(c *gin.Context) {
+	r.POST("/api/register", func(c *gin.Context) {
 		req := model.Identity{}
 		err := c.ShouldBindJSON(&req)
 		if err != nil {

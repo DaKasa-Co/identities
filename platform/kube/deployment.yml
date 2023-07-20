@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identities-deployment
+  labels:
+    app: identities
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: identities
+  template:
+    metadata:
+      labels:
+        app: identities
+    spec:
+      containers:
+      - name: identities
+        image: identities
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            memory: 256Mi
+            cpu: "0.5"
+        ports:
+        - containerPort: 9080
+        envFrom:
+        - configMapRef:
+          name: api-identities-credentials
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      containers:
+      - name: postgresdb
+        image: database
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        envFrom:
+        - configMapRef:
+          name: postgresdb-credentials
+        volumeMounts:
+        - mountPath: /var/lib/postgres/data
+          name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: identities-claim

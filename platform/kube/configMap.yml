@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresdb-credentials
+  labels:
+    app: postgresdb
+data:
+  POSTGRES_DB: identities
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: someAwesomePassword
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-identities-credentials
+  labels:
+    app: identities
+data:
+  DB_NAME: identities
+  DB_USER: postgres
+  DB_HOST: localhost
+  DB_PASSWORD: someAwesomePassword
+  JWT_KEY: someEncryptedKey
+  API_KEY: SomeApiKey

@@ -10,7 +10,7 @@ import (
 
 func registerMissingApiKey() error {
 	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/register", nil)
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", nil)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func registerMissingApiKey() error {
 func registerMissingRequiredFields() error {
 	fmt.Println("Send HTTP Request without some request field. Should return error")
 	body := []byte(`{"username": "teste", "email": "someemail@gmail.com"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func registerMissingRequiredFields() error {
 func registerSuccess() error {
 	fmt.Println("Send HTTP Request with all datas correct. Should return success")
 	body := []byte(`{"name": "gio silva", "username": "gio._.", "email": "someemail@gmail.com", "password": "someGoodPassword", "birthday": "2003-05-11", "phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func registerSuccess() error {
 func registerConflictWithUsernameFieldThatAlreadyExists() error {
 	fmt.Println("Send HTTP Request with username and email that already exists in database. Should return error")
 	body := []byte(`{"name": "gio silva", "username": "gio._.", "email": "someemasil@gmail.com", "password": "someGoodPassword", "birthday": "2003-05-11", "phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func registerConflictWithUsernameFieldThatAlreadyExists() error {
 
 func loginMissingApiKey() error {
 	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/login", nil)
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", nil)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func loginMissingApiKey() error {
 func loginWrongCredentials() error {
 	fmt.Println("Send HTTP Request with bad credentials. Should return error")
 	body := []byte(`{"email": "someemail@gmail.com", "password": "someBadPassword"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/login", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func loginWrongCredentials() error {
 func loginSuccess() error {
 	fmt.Println("Send HTTP Request with correct credentials. Should return success and JWT token in the header")
 	body := []byte(`{"email": "someemail@gmail.com", "password": "someGoodPassword"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/v1/login", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err

@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgresdb
+  name: postgresdb-claim
 spec:
   storageClassName: manual
   accessModes:

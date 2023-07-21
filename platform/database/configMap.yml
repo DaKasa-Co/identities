@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresdb-credentials
+  labels:
+    app: postgresdb
+data:
+  POSTGRES_DB: identities
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: someAwesomePassword

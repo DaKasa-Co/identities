@@ -1,3 +1,4 @@
 FROM postgres:15.3
 
 COPY identities.sql /docker-entrypoint-initdb.d/
+EXPOSE 5432

@@ -19,4 +19,5 @@ WORKDIR /app
 
 COPY --from=build /build/api-identities .
 
+EXPOSE 9080
 ENTRYPOINT [ "/app/api-identities" ]

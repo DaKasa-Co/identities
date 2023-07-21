@@ -1,23 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: identities
-  labels:
-    app: identities
+  name: postgresdb
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: identities
+      app: postgresdb
   template:
     metadata:
       labels:
-        app: identities
+        app: postgresdb
     spec:
-      serviceAccountName: dakasa-identities
       containers:
-      - name: identities
-        image: identities
+      - name: postgresdb
+        image: database
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -26,7 +23,14 @@ spec:
             memory: 256Mi
             cpu: "0.5"
         ports:
-        - containerPort: 9080
+        - containerPort: 5432
         envFrom:
         - configMapRef:
-            name: api-identities-credentials
+            name: postgresdb-credentials
+        volumeMounts:
+        - mountPath: /var/lib/postgres/data
+          name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: postgresdb-claim

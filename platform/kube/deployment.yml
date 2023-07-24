@@ -5,7 +5,7 @@ metadata:
   labels:
     app: identities
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: identities
@@ -14,17 +14,12 @@ spec:
       labels:
         app: identities
     spec:
+      terminationGracePeriodSeconds: 30
       serviceAccountName: dakasa-identities
       containers:
       - name: identities
         image: identities
         imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            memory: 512Mi
-          requests:
-            memory: 256Mi
-            cpu: "0.5"
         ports:
         - containerPort: 9080
         envFrom:

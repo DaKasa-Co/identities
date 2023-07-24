@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/DaKasa-Co/identities/client"
 	"github.com/DaKasa-Co/identities/model"
@@ -15,8 +16,8 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.Use(securities.Authenticate())
 
+	r.Use(securities.Authenticate())
 	r.POST("/api/login", func(c *gin.Context) {
 		req := model.Identity{}
 		err := c.ShouldBindJSON(&req)
@@ -43,15 +44,19 @@ func main() {
 		}
 
 		db, err := database.OpenSQL()
+		db.SetMaxIdleConns(0)
+		db.SetConnMaxLifetime(time.Second)
 		if err != nil {
+			fmt.Println("NOT CONNECT TO DATABASE!")
 			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
 			return
 		}
 
 		query := "SELECT id, username FROM users WHERE " +
-			"(email = $1 OR username = $2) AND password = crypt($3, password)"
+			"(email = $1 OR username = $2) AND password = crypt($3, password);"
 		res, err := db.Query(query, req.Email, req.Username, req.Password)
 		if err != nil {
+			fmt.Println("CANT DO QUERY IN DATABASE!")
 			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
 			return
 		}
@@ -63,6 +68,7 @@ func main() {
 
 			err = res.Scan(&row.ID, &row.Username)
 			if err != nil {
+				fmt.Println("CANT GET ROWS IN DATABASE!")
 				c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
 				return
 			}
@@ -83,7 +89,7 @@ func main() {
 		}
 
 		c.Header("X-JWT", jwt)
-		c.JSON(http.StatusOK, nil)
+		c.JSON(http.StatusOK, "{\"someTeste\": \"aaaaaa\"}")
 	})
 
 	r.POST("/api/register", func(c *gin.Context) {
@@ -142,7 +148,7 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusCreated, nil)
+		c.JSON(http.StatusCreated, "{}")
 	})
 
 	if err := r.Run(":9080"); err != nil {

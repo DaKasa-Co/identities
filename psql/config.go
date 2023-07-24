@@ -15,7 +15,6 @@ const (
 var (
 	Name     = os.Getenv("DB_NAME")
 	User     = os.Getenv("DB_USER")
-	Host     = os.Getenv("DB_HOST")
 	Password = os.Getenv("DB_PASSWORD")
 )
 

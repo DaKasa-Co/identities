@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: postgresdb
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: postgresdb
@@ -12,16 +12,11 @@ spec:
       labels:
         app: postgresdb
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
       - name: postgresdb
         image: database
         imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            memory: 512Mi
-          requests:
-            memory: 256Mi
-            cpu: "0.5"
         ports:
         - containerPort: 5432
         envFrom:

@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: postgresdb
+spec:
+  hosts:
+  - postgresdb
+  http:
+    - route:
+      - destination:
+          host: postgresdb
+          port:
+            number: 5432

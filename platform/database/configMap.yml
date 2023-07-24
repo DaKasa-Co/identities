@@ -8,3 +8,5 @@ data:
   POSTGRES_DB: identities
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: someAwesomePassword
+  POSTGRES_PORT: "5432"
+  

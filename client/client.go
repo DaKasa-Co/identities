@@ -1,12 +1,16 @@
 package client
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 
 	"github.com/DaKasa-Co/identities/model"
 	database "github.com/DaKasa-Co/identities/psql"
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/gin-gonic/gin"
 )
 
@@ -80,10 +84,6 @@ func CheckBirthday(birth time.Time) error {
 	return nil
 }
 
-func ErrorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
-}
-
 func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 	requiredFields := map[string]interface{}{
 		"name":     infos.Name,
@@ -125,6 +125,13 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 		return database.Users{}, err
 	}
 
+	if infos.Avatar != "" {
+		infos.Avatar, err = UploadMedia(infos.Avatar)
+		if err != nil {
+			return database.Users{}, err
+		}
+	}
+
 	return database.Users{
 		Name:        infos.Name,
 		Username:    infos.Username,
@@ -135,4 +142,29 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 		Address:     infos.Address,
 		Avatar:      infos.Avatar,
 	}, nil
+}
+
+func ErrorResponse(err error) gin.H {
+	return gin.H{"error": err.Error()}
+}
+
+func UploadMedia(file interface{}) (string, error) {
+	name := os.Getenv("CLOUDINARY_CLOUD_NAME")
+	key := os.Getenv("CLOUDINARY_API_KEY")
+	secret := os.Getenv("CLOUDINARY_API_SECRET")
+	folder := os.Getenv("CLOUDINARY_UPLOAD_FOLDER")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	cld, err := cloudinary.NewFromParams(name, key, secret)
+	if err != nil {
+		return "", err
+	}
+
+	uploadParam, err := cld.Upload.Upload(ctx, file, uploader.UploadParams{Folder: folder})
+	if err != nil {
+		return "", err
+	}
+	return uploadParam.SecureURL, nil
 }

@@ -27,3 +27,7 @@ services:
       - DB_PASSWORD=someAwesomePassword
       - JWT_KEY=someEncryptedKey
       - API_KEY=SomeApiKey
+      - CLOUDINARY_CLOUD_NAME=ddp1zqajp
+      - CLOUDINARY_API_KEY=551242643183929
+      - CLOUDINARY_API_SECRET=DORrwt4TO0-Ce7r-9yTZ0w_Hp_o
+      - CLOUDINARY_UPLOAD_FOLDER=dakasa

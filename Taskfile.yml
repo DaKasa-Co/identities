@@ -1,0 +1,43 @@
+version: '3'
+
+tasks:
+  build-images:
+    cmds:
+      - docker build . -t identities:0.1.0
+      - docker build . -f Dockerfile.database -t database:latest
+
+  test:all:
+    cmds:
+      - go test ./...
+      - cd functional_tests
+      - docker-compose up -d 
+      - sleep 15
+      - go run test.go
+
+  test:unit:
+    cmds:
+      - go test ./...
+
+  test:functional:
+    cmds:
+      - cd functional_tests
+      - docker-compose up -d 
+      - sleep 15
+      - go run test.go
+
+  up-k8s:
+    cmds:
+      - helm install identities chart/microsservices
+
+  up:
+    cmds:
+      - cd functional_tests
+      - docker-compose up
+
+  down:
+    cmds:
+      - docker-compose down
+
+  down-k8s:
+    cmds:
+      - helm uninstall identities

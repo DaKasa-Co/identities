@@ -24,4 +24,4 @@ spec:
         - containerPort: 9080
         envFrom:
         - configMapRef:
-            name: api-identities-credentials
+            name: identities-credentials

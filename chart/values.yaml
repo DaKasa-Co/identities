@@ -1,0 +1,40 @@
+name: identities
+replicaCount: 3
+image:
+  repository: identities
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.1.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+
+service:
+  port: 9080
+
+envs:
+  DB_NAME: identities
+  DB_USER: postgres
+  # TO DO: THIS ENVS BELOW ARE SECRETS. 
+  DB_PASSWORD: someAwesomePassword
+  JWT_KEY: someEncryptedKey
+  API_KEY: SomeApiKey
+
+resources: 
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 95
+  targetMemoryUtilizationPercentage: 80

@@ -3,6 +3,7 @@ module github.com/DaKasa-Co/identities
 go 1.20
 
 require (
+	github.com/cloudinary/cloudinary-go v1.7.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-openapi/errors v0.20.4
 	github.com/go-openapi/loads v0.21.2
@@ -13,11 +14,11 @@ require (
 	github.com/go-openapi/validate v0.22.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jessevdk/go-flags v1.4.0
+	gopkg.in/mail.v2 v2.3.1
 )
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
-	github.com/cloudinary/cloudinary-go v1.7.0 // indirect
 	github.com/creasty/defaults v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
@@ -46,6 +47,7 @@ require (
 	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/api v0.27.4 // indirect

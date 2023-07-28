@@ -398,6 +398,21 @@ func TestPrepareUserRegisterDatas(t *testing.T) {
 			Description: "Bad birthday request and should return error.",
 		},
 		{
+			Name: "FailInUploadImage",
+			Req: model.Identity{
+				Name:        "teste da silva",
+				Username:    "abc.123",
+				Email:       "teste@email.com",
+				Password:    "somePass123",
+				Birthday:    "2002-01-02",
+				Avatar:      "potato",
+				PhoneNumber: 12736182763,
+			},
+			Err:         fmt.Errorf("must provide API Secret"),
+			PrepUser:    database.Users{},
+			Description: "Fails when try submit avatar image.",
+		},
+		{
 			Name: "PrepareUserDataWithSuccess",
 			Req: model.Identity{
 				Name:        "teste da silva",

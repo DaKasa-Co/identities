@@ -1,16 +1,13 @@
 package client
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"regexp"
 	"time"
 
+	"github.com/DaKasa-Co/identities/external"
 	"github.com/DaKasa-Co/identities/model"
 	database "github.com/DaKasa-Co/identities/psql"
-	"github.com/cloudinary/cloudinary-go"
-	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/gin-gonic/gin"
 )
 
@@ -126,7 +123,7 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 	}
 
 	if infos.Avatar != "" {
-		infos.Avatar, err = UploadMedia(infos.Avatar)
+		infos.Avatar, err = external.LoadedStorage.UploadMedia(infos.Avatar)
 		if err != nil {
 			return database.Users{}, err
 		}
@@ -146,25 +143,4 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 
 func ErrorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
-}
-
-func UploadMedia(file interface{}) (string, error) {
-	name := os.Getenv("CLOUDINARY_CLOUD_NAME")
-	key := os.Getenv("CLOUDINARY_API_KEY")
-	secret := os.Getenv("CLOUDINARY_API_SECRET")
-	folder := os.Getenv("CLOUDINARY_UPLOAD_FOLDER")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	cld, err := cloudinary.NewFromParams(name, key, secret)
-	if err != nil {
-		return "", err
-	}
-
-	uploadParam, err := cld.Upload.Upload(ctx, file, uploader.UploadParams{Folder: folder})
-	if err != nil {
-		return "", err
-	}
-	return uploadParam.SecureURL, nil
 }

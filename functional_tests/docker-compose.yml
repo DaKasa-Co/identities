@@ -16,7 +16,7 @@ services:
       - POSTGRES_PASSWORD=someAwesomePassword
 
   api-identities:
-    image: identities:latest
+    image: identities:0.1.0
     network_mode: host
     depends_on:
       - database
@@ -27,7 +27,11 @@ services:
       - DB_PASSWORD=someAwesomePassword
       - JWT_KEY=someEncryptedKey
       - API_KEY=SomeApiKey
-      - CLOUDINARY_CLOUD_NAME=ddp1zqajp
-      - CLOUDINARY_API_KEY=551242643183929
-      - CLOUDINARY_API_SECRET=DORrwt4TO0-Ce7r-9yTZ0w_Hp_o
+      - CLOUDINARY_CLOUD_NAME=<YOUR CLOUD NAME HERE>
+      - CLOUDINARY_API_KEY=<YOUR API KEY HERE>
+      - CLOUDINARY_API_SECRET=<YOUR API SECRET HERE>
       - CLOUDINARY_UPLOAD_FOLDER=dakasa
+      - EMAIL_HOST=smtp.gmail.com
+      - EMAIL_PORT=587
+      - EMAIL_USER_ACCOUNT=<EMAIL>
+      - EMAIL_PASSWORD_ACCOUNT=<SENHA>

@@ -10,6 +10,8 @@ COPY client/ client/
 COPY model/ model/
 COPY psql/ psql/
 COPY securities/ securities/
+COPY controllers/ controllers/
+COPY external/ external/
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o api-identities main.go
 

@@ -7,9 +7,9 @@ tasks:
       - docker build . -f Dockerfile.database -t database:latest
 
   test:all:
+    dir: functional_tests
     cmds:
-      - go test ./...
-      - cd functional_tests
+      - go test ../...
       - docker-compose up -d 
       - sleep 15
       - go run test.go
@@ -30,11 +30,12 @@ tasks:
       - helm install identities chart/microsservices
 
   up:
+    dir: functional_tests
     cmds:
-      - cd functional_tests
       - docker-compose up
 
   down:
+    dir: functional_tests
     cmds:
       - docker-compose down
 

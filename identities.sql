@@ -5,7 +5,7 @@
 -- Dumped from database version 15.3 (Ubuntu 15.3-0ubuntu0.23.04.1)
 -- Dumped by pg_dump version 15.3 (Ubuntu 15.3-0ubuntu0.23.04.1)
 
--- Started on 2023-07-27 19:07:34 -03
+-- Started on 2023-07-28 18:27:51 -03
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -19,7 +19,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 3 (class 3079 OID 16533)
+-- TOC entry 2 (class 3079 OID 24796)
 -- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -27,8 +27,8 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 
 
 --
--- TOC entry 3420 (class 0 OID 0)
--- Dependencies: 3
+-- TOC entry 3419 (class 0 OID 0)
+-- Dependencies: 2
 -- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
 --
 
@@ -36,7 +36,7 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
--- TOC entry 2 (class 3079 OID 16511)
+-- TOC entry 3 (class 3079 OID 24833)
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -44,8 +44,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 
 
 --
--- TOC entry 3421 (class 0 OID 0)
--- Dependencies: 2
+-- TOC entry 3420 (class 0 OID 0)
+-- Dependencies: 3
 -- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: -
 --
 
@@ -53,11 +53,11 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- TOC entry 271 (class 1255 OID 24698)
+-- TOC entry 265 (class 1255 OID 24844)
 -- Name: add_date_interval(interval); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.add_date_interval(add_interval interval) RETURNS timestamp
+CREATE FUNCTION public.add_date_interval(add_interval interval) RETURNS timestamp without time zone
     LANGUAGE plpgsql STRICT
     AS $$
 BEGIN
@@ -67,7 +67,7 @@ $$;
 
 
 --
--- TOC entry 279 (class 1255 OID 24708)
+-- TOC entry 266 (class 1255 OID 24845)
 -- Name: add_ten_minutes(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -80,7 +80,7 @@ END;$$;
 
 
 --
--- TOC entry 219 (class 1255 OID 16499)
+-- TOC entry 267 (class 1255 OID 24846)
 -- Name: encrypt_passwords(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -95,7 +95,7 @@ $$;
 
 
 --
--- TOC entry 272 (class 1255 OID 24699)
+-- TOC entry 268 (class 1255 OID 24847)
 -- Name: random_between(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -107,17 +107,18 @@ BEGIN
 END;
 $$;
 
+
 --
--- TOC entry 220 (class 1255 OID 16500)
--- Name: update_at(); Type: FUNCTION; Schema: public; Owner: -
+-- TOC entry 269 (class 1255 OID 24848)
+-- Name: updated_at(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_at() RETURNS trigger
+CREATE FUNCTION public.updated_at() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
    IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
-      NEW.timestamp_update = now();
+      NEW.updated_at = now();
       RETURN NEW;
    ELSE
       RETURN OLD;
@@ -131,19 +132,20 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 218 (class 1259 OID 24700)
+-- TOC entry 216 (class 1259 OID 24849)
 -- Name: recovery; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.recovery (
     id uuid NOT NULL,
+    user_id uuid NOT NULL,
     validation integer NOT NULL,
     expire_at timestamp with time zone NOT NULL
 );
 
 
 --
--- TOC entry 217 (class 1259 OID 16573)
+-- TOC entry 217 (class 1259 OID 24852)
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -157,13 +159,13 @@ CREATE TABLE public.users (
     phonenumber bigint NOT NULL,
     address character varying(225),
     picture character varying(150),
-    timestamp_update timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    timestamp_created timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
 --
--- TOC entry 216 (class 1259 OID 16572)
+-- TOC entry 218 (class 1259 OID 24860)
 -- Name: users_phonenumber_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -176,8 +178,8 @@ CREATE SEQUENCE public.users_phonenumber_seq
 
 
 --
--- TOC entry 3422 (class 0 OID 0)
--- Dependencies: 216
+-- TOC entry 3421 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: users_phonenumber_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -185,7 +187,7 @@ ALTER SEQUENCE public.users_phonenumber_seq OWNED BY public.users.phonenumber;
 
 
 --
--- TOC entry 3260 (class 2604 OID 16577)
+-- TOC entry 3259 (class 2604 OID 24861)
 -- Name: users phonenumber; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -193,28 +195,28 @@ ALTER TABLE ONLY public.users ALTER COLUMN phonenumber SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 3414 (class 0 OID 24700)
--- Dependencies: 218
+-- TOC entry 3411 (class 0 OID 24849)
+-- Dependencies: 216
 -- Data for Name: recovery; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.recovery (id, validation, expire_at) FROM stdin;
+COPY public.recovery (id, user_id, validation, expire_at) FROM stdin;
 \.
 
 
 --
--- TOC entry 3413 (class 0 OID 16573)
+-- TOC entry 3412 (class 0 OID 24852)
 -- Dependencies: 217
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.users (id, name, username, email, password, birthday, phonenumber, address, picture, timestamp_update, timestamp_created) FROM stdin;
+COPY public.users (id, name, username, email, password, birthday, phonenumber, address, picture, updated_at, created_at) FROM stdin;
 \.
 
 
 --
--- TOC entry 3423 (class 0 OID 0)
--- Dependencies: 216
+-- TOC entry 3422 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: users_phonenumber_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -222,7 +224,7 @@ SELECT pg_catalog.setval('public.users_phonenumber_seq', 1, false);
 
 
 --
--- TOC entry 3265 (class 2606 OID 24705)
+-- TOC entry 3263 (class 2606 OID 24868)
 -- Name: recovery recovery_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -231,7 +233,16 @@ ALTER TABLE ONLY public.recovery
 
 
 --
--- TOC entry 3268 (class 2620 OID 24709)
+-- TOC entry 3265 (class 2606 OID 24870)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id, email, phonenumber, username);
+
+
+--
+-- TOC entry 3266 (class 2620 OID 24862)
 -- Name: recovery add_expire_date; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -239,22 +250,22 @@ CREATE TRIGGER add_expire_date BEFORE INSERT ON public.recovery FOR EACH ROW EXE
 
 
 --
--- TOC entry 3266 (class 2620 OID 16581)
--- Name: users crypt_passw; Type: TRIGGER; Schema: public; Owner: -
+-- TOC entry 3267 (class 2620 OID 24865)
+-- Name: users crypt_sensitive_data; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER crypt_passw BEFORE INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.encrypt_passwords();
+CREATE TRIGGER crypt_sensitive_data BEFORE INSERT OR UPDATE OF password ON public.users FOR EACH ROW EXECUTE FUNCTION public.encrypt_passwords();
 
 
 --
--- TOC entry 3267 (class 2620 OID 16582)
--- Name: users update_timestamp; Type: TRIGGER; Schema: public; Owner: -
+-- TOC entry 3268 (class 2620 OID 24866)
+-- Name: users update_date; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_timestamp BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.update_at();
+CREATE TRIGGER update_date BEFORE INSERT OR UPDATE OF id, username, name, email, password, birthday, phonenumber, address, picture, updated_at, created_at ON public.users FOR EACH ROW EXECUTE FUNCTION public.updated_at();
 
 
--- Completed on 2023-07-27 19:07:34 -03
+-- Completed on 2023-07-28 18:27:51 -03
 
 --
 -- PostgreSQL database dump complete

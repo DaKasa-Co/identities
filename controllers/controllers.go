@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/DaKasa-Co/identities/client"
 	"github.com/DaKasa-Co/identities/external"
@@ -13,6 +14,7 @@ import (
 	database "github.com/DaKasa-Co/identities/psql"
 	"github.com/DaKasa-Co/identities/securities"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func Login() gin.HandlerFunc {
@@ -190,21 +192,90 @@ func OpenAccountRecovery() gin.HandlerFunc {
 			return
 		}
 
-		email := rows[0].Email
-		fmt.Println(rows[0])
-		fmt.Println(email)
+		id := uuid.New()
 		validation := rand.Intn(999999-100000+1) + 100000
-		query = "INSERT INTO recovery (id, validation) VALUES ($1, $2)"
-		_, err = db.Exec(query, rows[0].ID, validation)
+		query = "INSERT INTO recovery (id, user_id, validation) VALUES ($1, $2, $3)"
+		_, err = db.Exec(query, id, rows[0].ID, validation)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
 			return
 		}
 
-		fmt.Println(email)
-		err = external.LoadedEmail.SendEmailToRecoverAccount([]string{email}, strconv.Itoa(validation))
+		err = external.LoadedEmail.SendEmailToRecoverAccount([]string{rows[0].Email}, strconv.Itoa(validation))
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, err.Error())
+		}
+
+		c.JSON(http.StatusCreated, "{\"id\": \""+id.String()+"\"}")
+	}
+}
+
+func UpdateByRecovery() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req := model.Identity{}
+		err := c.ShouldBindJSON(&req)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, client.ErrorResponse(err))
+			return
+		}
+
+		if err = client.CheckIsValidPassword(req.Password); err != nil {
+			c.JSON(http.StatusBadRequest, client.ErrorResponse(err))
+			return
+		}
+
+		db, err := database.OpenSQL()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
+			return
+		}
+
+		query := "SELECT user_id, expire_at FROM recovery WHERE " +
+			"id = $1 AND validation = $2;"
+		res, err := db.Query(query, req.Status.Ticket, req.Status.Validation.Tmp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
+			return
+		}
+
+		defer res.Close()
+		rows := []database.Recovery{}
+		for res.Next() {
+			row := new(database.Recovery)
+
+			err = res.Scan(&row.UserID, &row.ExpireAt)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
+				return
+			}
+
+			rows = append(rows, *row)
+		}
+
+		if len(rows) != 1 {
+			err = fmt.Errorf("failed in recovery validation")
+			c.JSON(http.StatusForbidden, client.ErrorResponse(err))
+			return
+		}
+
+		query = "DELETE FROM recovery WHERE id = $1;"
+		_, err = db.Exec(query, req.Status.Ticket)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
+			return
+		}
+
+		if rows[0].ExpireAt.Before(time.Now()) {
+			err = fmt.Errorf("recovery request has been expired")
+			c.JSON(http.StatusGone, client.ErrorResponse(err))
+			return
+		}
+
+		query = "UPDATE users SET password = $1 WHERE id = $2;"
+		_, err = db.Exec(query, req.Password, rows[0].UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, client.ErrorResponse(err))
+			return
 		}
 
 		c.JSON(http.StatusNoContent, nil)

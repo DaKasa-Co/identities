@@ -28,6 +28,13 @@ type Users struct {
 	PhoneNumber int       `field:"phonenumber"`
 	Address     string    `field:"address"`
 	Avatar      string    `field:"picture"`
-	UpdateAt    time.Time `field:"timestamp_update"`
-	CreatedAt   time.Time `field:"timestamp_created"`
+	UpdateAt    time.Time `field:"update_at"`
+	CreatedAt   time.Time `field:"created_at"`
+}
+
+type Recovery struct {
+	ID         uuid.UUID `field:"id"`
+	UserID     uuid.UUID `field:"user_id"`
+	Validation int       `field:"validation"`
+	ExpireAt   time.Time `field:"expire_at"`
 }

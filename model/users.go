@@ -18,11 +18,22 @@ type Identity struct {
 	Stamp        Stamp        `json:"stamp,omitempty"`
 	CreatedAt    string       `json:"createdAt,omitempty"`
 	UpdatedAt    string       `json:"updatedAt,omitempty"`
+	Status       Status       `json:"status,omitempty"`
 }
 
 type Stamp struct {
 	IsVerified bool   `json:"isverified,omitempty"`
 	Type       string `json:"type,omitempty"`
+}
+
+type Status struct {
+	Ticket     uuid.UUID        `json:"ticket,omitempty"`
+	Validation StatusValidation `json:"validation,omitempty"`
+}
+
+type StatusValidation struct {
+	Tmp      int    `json:"tmp,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 type SocialMedias struct {

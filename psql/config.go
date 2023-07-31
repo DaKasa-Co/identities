@@ -18,6 +18,7 @@ var (
 	Password = os.Getenv("DB_PASSWORD")
 )
 
+// Users represents Users table
 type Users struct {
 	ID          uuid.UUID `field:"id"`
 	Name        string    `field:"name"`
@@ -32,6 +33,7 @@ type Users struct {
 	CreatedAt   time.Time `field:"created_at"`
 }
 
+// Recovery represents recovery table
 type Recovery struct {
 	ID         uuid.UUID `field:"id"`
 	UserID     uuid.UUID `field:"user_id"`

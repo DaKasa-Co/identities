@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// GeneratesJWT generates JSON Web Token for authentication purpose
 func GenerateJWT(id uuid.UUID, username string) (string, error) {
 	JWTKeySecret := []byte(os.Getenv("JWT_KEY"))
 	token := jwt.New(jwt.SigningMethodHS256)

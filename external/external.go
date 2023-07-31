@@ -11,6 +11,7 @@ import (
 	"gopkg.in/mail.v2"
 )
 
+// MediaStorage represents the media storage
 type MediaStorage struct {
 	Name   string
 	Key    string
@@ -18,6 +19,7 @@ type MediaStorage struct {
 	Folder string
 }
 
+// Email represents the email service
 type Email struct {
 	Host      string
 	Port      string
@@ -26,6 +28,7 @@ type Email struct {
 	Content   []byte
 }
 
+// EmailAccount represents the service account responsible for sending emails
 type EmailAccount struct {
 	Email    string
 	Password string
@@ -57,6 +60,7 @@ type MediaStorageHandler interface {
 	UploadMedia(file interface{}) (string, error)
 }
 
+// SendEmailToRecoveryAccount sends recovery message to owner's account
 func (e Email) SendEmailToRecoverAccount(receivers []string, validation string) error {
 	port, err := strconv.Atoi(e.Port)
 	if err != nil {
@@ -80,6 +84,7 @@ func (e Email) SendEmailToRecoverAccount(receivers []string, validation string) 
 	return nil
 }
 
+// UploadMedia upload to cloud respective media
 func (s *MediaStorage) UploadMedia(file interface{}) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// OpenSQL helps instantiate postgresql service
 func OpenSQL() (*sql.DB, error) {
 	host := getHost()
 

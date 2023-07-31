@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Login is responsible to user authntication in service
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := model.Identity{}
@@ -88,6 +89,7 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// Register is responsible to sign up user in service
 func Register() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := model.Identity{}
@@ -149,6 +151,7 @@ func Register() gin.HandlerFunc {
 	}
 }
 
+// OpenAccountRecovery is responsible to open ticket about recovery process
 func OpenAccountRecovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := model.Identity{}
@@ -210,6 +213,7 @@ func OpenAccountRecovery() gin.HandlerFunc {
 	}
 }
 
+// UpdateByRecovery checks if who request ticket recovery is the account's owner. In positive case, updates to a new inserted password
 func UpdateByRecovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		req := model.Identity{}

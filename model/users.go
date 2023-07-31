@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Identity represents the global scope request about identities service
 type Identity struct {
 	ID           uuid.UUID    `json:"id,omitempty"`
 	Name         string       `json:"name,omitempty"`
@@ -21,21 +22,25 @@ type Identity struct {
 	Status       Status       `json:"status,omitempty"`
 }
 
+// Stamp represents DaKasa recognition stamps
 type Stamp struct {
 	IsVerified bool   `json:"isverified,omitempty"`
 	Type       string `json:"type,omitempty"`
 }
 
+// Status represents request status
 type Status struct {
 	Ticket     uuid.UUID        `json:"ticket,omitempty"`
 	Validation StatusValidation `json:"validation,omitempty"`
 }
 
+// StatusValidation represents the validation fields
 type StatusValidation struct {
 	Tmp      int    `json:"tmp,omitempty"`
 	Password string `json:"password,omitempty"`
 }
 
+// SocialMedias represents the User's Social Medias
 type SocialMedias struct {
 	Instagram string `json:"instagram,omitempty"`
 	Facebook  string `json:"facebook,omitempty"`

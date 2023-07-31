@@ -42,3 +42,9 @@ tasks:
   down-k8s:
     cmds:
       - helm uninstall identities
+  
+  gen-docs-by-spec:
+    dir: docs
+    cmds:
+      - swagger generate markdown
+      - swagger generate server

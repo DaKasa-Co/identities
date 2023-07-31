@@ -1,0 +1,164 @@
+swagger: "2.0"
+info:
+  title: Identities microsservice
+  description: Microsservice API responsible about all identities core data
+  version: 0.1.0
+
+host: identities.dakasa.com
+basePath: /v1
+schemes:
+  - http
+  - https
+
+security:
+  - APIKeyHeader: []
+paths:
+  /register:
+    post:
+      summary: Sign up user in service
+      consumes:
+        - application/json
+      parameters:
+        - in: formData
+          name: name
+          type: string
+          required: true
+          description: The users complete name
+        - in: formData
+          name: username
+          type: string
+          required: true
+          description: The username to be used in project
+        - in: formData
+          name: email
+          type: string
+          required: true
+        - in: formData
+          name: password
+          type: string
+          required: true
+          description: The password is used to log in
+        - in: formData
+          name: phoneNumber
+          type: integer
+          required: true
+        - in: formData
+          name: birthday
+          type: string
+          required: true
+        - in: formData
+          name: address
+          type: string
+        - in: formData
+          name: avatar
+          type: string
+          description: Image or link that will be used to represents avatar users account
+      responses:
+        201:
+          description: Created user with success
+        400:
+          description: The user sent some bad data in form
+        409:
+          description: users with respective email, username or phone number already exists
+        500:
+          description: Unexpected error occurs in internal server
+
+  /login:
+    post:
+      summary: Sign in user
+      consumes:
+        - application/json
+      parameters:
+        - in: formData
+          name: user
+          type: string
+          required: true
+          description: The user identity field. Can be informed email ou username
+        - in: formData
+          name: password
+          type: string
+          required: true
+          description: The users password. Used to check if who is attemped to sign in is really the account owner
+      responses:
+        200:
+          description: Logged in with success
+          headers:
+            X-JWT: 
+              type: string
+              description: Token to grant access to user in restrict services
+        400:
+          description: requested body reaches malformed
+        403:
+          description: users credential are incorrect
+        500:
+          description: Occurs unexpected internal error
+
+  /recovery:
+    post:
+      summary: Open recovery account process
+      consumes:
+        - application/json
+      parameters:
+        - in: formData
+          name: user
+          type: string
+          required: true
+          description: The user identity field. Can be informed email, username or phonenumber
+      responses:
+        201:
+          description: Created ticket recovery with success
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The ticket recovery ID
+        400:
+          description: requested body reaches malformed
+        404:
+          description: user not found
+        500:
+          description: Occurs unexpected internal error
+        503:
+          description: Email service is unavailable and fails in sent recovery message.
+  
+  /chall-recovery:
+    post:
+      summary: Checks if who request recovery ticket are the account's owner
+      consumes:
+        - application/json
+      parameters:
+        - in: formData
+          name: ticket
+          type: string
+          required: true
+          description: The ticket identity field
+        - in: formData
+          name: password
+          type: string
+          required: true
+          description: New account password
+        - in: formData
+          name: validation
+          type: integer
+          required: true
+          description: A random validation integer. The number get's a range between 100000 ~ 999999
+      responses:
+        204:
+          description: Recovery account with success
+        400:
+          description: requested body reaches malformed
+        403:
+          description: incorrect validation number
+        410:
+          description: Recovery ticket has been expired
+        500:
+          description: Occurs unexpected internal error
+
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: X-API-Key
+
+  

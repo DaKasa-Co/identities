@@ -11,19 +11,33 @@ tasks:
     cmds:
       - go test ../...
       - docker-compose up -d 
-      - sleep 15
-      - go run test.go
+      - sleep 7
+      - cmd: go run test.go
+        ignore_error: true
+      - docker-compose down
+    env:
+      DB_NAME: identities
+      DB_USER: postgres
+      DB_HOST: localhost
+      DB_PASSWORD: someAwesomePassword
 
   test:unit:
     cmds:
       - go test ./...
 
   test:functional:
+    dir: functional_tests
     cmds:
-      - cd functional_tests
       - docker-compose up -d 
-      - sleep 15
-      - go run test.go
+      - sleep 7
+      - cmd: go run test.go
+        ignore_error: true
+      - docker-compose down
+    env:
+      DB_NAME: identities
+      DB_USER: postgres
+      DB_HOST: localhost
+      DB_PASSWORD: someAwesomePassword
 
   up-k8s:
     cmds:

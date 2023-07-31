@@ -53,8 +53,14 @@ jobs:
         run: |
           cd functional_tests
           docker-compose up -d
-          sleep 15
+          sleep 7
           go run test.go
+        env:
+          DB_NAME: identities
+          DB_USER: postgres
+          DB_HOST: localhost
+          DB_PASSWORD: someAwesomePassword
+
 
       # TO DO: The real deploy goes here
 

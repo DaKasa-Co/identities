@@ -67,21 +67,39 @@ func CheckIsValidUsername(username string) error {
 
 // CheckIsValidPassword checks if respective password is valid
 func CheckIsValidPassword(password string) error {
-	if len(password) >= 8 {
+	hasUpper, hasLower, hasNum, hasSpecialChar := false, false, false, false
+
+	if len(password) < 8 {
 		return fmt.Errorf("password must be at least 8 characters long")
 	}
 
 	for _, char := range password {
 		switch {
 		case unicode.IsUpper(char):
-			return fmt.Errorf("password must have at least one capital letter")
+			hasUpper = true
 		case unicode.IsLower(char):
-			return fmt.Errorf("password must have at least one lowercase letter")
+			hasLower = true
 		case unicode.IsNumber(char):
-			return fmt.Errorf("password must have at least one number")
+			hasNum = true
 		case unicode.IsPunct(char) || unicode.IsSymbol(char):
-			return fmt.Errorf("password must have at least one special character")
+			hasSpecialChar = true
 		}
+	}
+
+	if !hasUpper {
+		return fmt.Errorf("password must have at least one capital letter")
+	}
+
+	if !hasLower {
+		return fmt.Errorf("password must have at least one lowercase letter")
+	}
+
+	if !hasNum {
+		return fmt.Errorf("password must have at least one number")
+	}
+
+	if !hasSpecialChar {
+		return fmt.Errorf("password must have at least one special character")
 	}
 
 	return nil

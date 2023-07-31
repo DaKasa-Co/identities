@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -204,9 +205,11 @@ func OpenAccountRecovery() gin.HandlerFunc {
 			return
 		}
 
-		err = external.LoadedEmail.SendEmailToRecoverAccount([]string{rows[0].Email}, strconv.Itoa(validation))
-		if err != nil {
-			c.JSON(http.StatusServiceUnavailable, err.Error())
+		if os.Getenv("TEST_IGNORE_EMAIL") != "true" {
+			err = external.LoadedEmail.SendEmailToRecoverAccount([]string{rows[0].Email}, strconv.Itoa(validation))
+			if err != nil {
+				c.JSON(http.StatusServiceUnavailable, err.Error())
+			}
 		}
 
 		c.JSON(http.StatusCreated, "{\"id\": \""+id.String()+"\"}")

@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: api-identities-credentials
+  name: identities-credentials
   labels:
     app: identities
 data:
   DB_NAME: identities
   DB_USER: postgres
-  DB_HOST: localhost
+  DB_HOST: postgresdb.postgres.svc.cluster.local
   DB_PASSWORD: someAwesomePassword
   JWT_KEY: someEncryptedKey
   API_KEY: SomeApiKey

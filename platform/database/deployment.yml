@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+  namespace: postgres
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: dakasa-dba
+      containers:
+      - name: postgresdb
+        image: database
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+        envFrom:
+        - configMapRef:
+            name: postgresdb-credentials
+        volumeMounts:
+        - mountPath: /var/lib/postgres/data
+          name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: postgresdb-claim

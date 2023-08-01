@@ -15,10 +15,10 @@ spec:
         app: identities
     spec:
       terminationGracePeriodSeconds: 30
-      serviceAccountName: dakasa-identities
+      serviceAccountName: identities
       containers:
       - name: identities
-        image: identities
+        image: identities:0.1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080

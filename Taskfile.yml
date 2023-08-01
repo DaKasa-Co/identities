@@ -39,9 +39,11 @@ tasks:
       DB_HOST: localhost
       DB_PASSWORD: someAwesomePassword
 
-  up-k8s:
+  gen-docs-by-spec:
+    dir: docs
     cmds:
-      - helm install identities chart/microsservices
+      - swagger generate markdown
+      - swagger generate server
 
   up:
     dir: functional_tests
@@ -53,12 +55,26 @@ tasks:
     cmds:
       - docker-compose down
 
+  up-k8s:
+    cmds:
+      - kubectl apply -f platform/database
+      - kubectl apply -f platform/kube
+      - sleep 5
+      - kubectl apply -f platform/istio
+      - sleep 5
+      - export INGRESS_HOST=$(kubectl -n istio-ingress get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      - export INGRESS_PORT=$(kubectl -n istio-ingress get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+      - echo "URL DE TESTE:" $INGRESS_HOST:$INGRESS_PORT
+
   down-k8s:
     cmds:
-      - helm uninstall identities
-  
-  gen-docs-by-spec:
-    dir: docs
+      - kubectl delete -f platform/istio
+      - kubectl delete -f platform/kube
+      - kubectl delete -f platform/database
+
+  minikube-reload-images:
     cmds:
-      - swagger generate markdown
-      - swagger generate server
+      - minikube image rm identities:0.1.0
+      - minikube image rm database:latest
+      - minikube image load identities:0.1.0
+      - minikube image load database:latest

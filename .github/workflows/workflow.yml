@@ -47,7 +47,7 @@ jobs:
       - name: Building images
         run: |
           docker build . -t identities:0.1.0
-          docker build . -f Dockerfile.database -t database:latest
+          docker build . -f Dockerfile.database -t id-database:latest
 
       - name: Running Functional Tests
         run: |

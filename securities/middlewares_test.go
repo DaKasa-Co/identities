@@ -1,20 +1,21 @@
 package securities
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"testing"
 
+	"github.com/DaKasa-Co/identities/helper"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 )
 
 // TestCoreAuthentication tests the middleware of api key header auth.
 func TestCoreAuthenticate(t *testing.T) {
-	t.Setenv("API_KEY", "someGoodAPIKey")
-	t.Run("ErrorWrongKey", func(t *testing.T) {
+	t.Setenv("JWT_KEY", "someGoodJWTKey")
+	t.Run("ErrorWrongJWTKey", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -28,7 +29,7 @@ func TestCoreAuthenticate(t *testing.T) {
 		assert.Equal(t, 401, w.Code)
 	})
 
-	t.Run("CorrectAPIKey", func(t *testing.T) {
+	t.Run("AuthSuccess", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 
@@ -37,7 +38,12 @@ func TestCoreAuthenticate(t *testing.T) {
 			Header: make(http.Header),
 		}
 
-		req.Header.Add("X-API-Key", os.Getenv("API_KEY"))
+		jwt, err := helper.GenerateJWT("usern", "", "")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		req.Header.Add("X-JWT", jwt)
 		c.Request = req
 		CoreAuthenticate(c)
 		assert.Equal(t, 200, w.Code)

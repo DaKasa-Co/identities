@@ -4,7 +4,7 @@ tasks:
   build-images:
     cmds:
       - docker build . -t identities:0.1.0
-      - docker build . -f Dockerfile.database -t database:latest
+      - docker build . -f Dockerfile.database -t id-database:latest
 
   test:all:
     dir: functional_tests
@@ -39,11 +39,10 @@ tasks:
       DB_HOST: localhost
       DB_PASSWORD: someAwesomePassword
 
-  gen-docs-by-spec:
+  gen-markdown:
     dir: docs
     cmds:
       - swagger generate markdown
-      - swagger generate server
 
   up:
     dir: functional_tests
@@ -59,11 +58,11 @@ tasks:
     cmds:
       - kubectl apply -f platform/database
       - kubectl apply -f platform/kube
-      - sleep 5
       - kubectl apply -f platform/istio
-      - sleep 5
-      - export INGRESS_HOST=$(kubectl -n istio-ingress get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      - export INGRESS_PORT=$(kubectl -n istio-ingress get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+      - kubectl wait --for=condition=Ready pods --all --all-namespaces
+      - sleep 10
+      - export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      - export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
       - echo "URL DE TESTE:" $INGRESS_HOST:$INGRESS_PORT
 
   down-k8s:
@@ -75,6 +74,6 @@ tasks:
   minikube-reload-images:
     cmds:
       - minikube image rm identities:0.1.0
-      - minikube image rm database:latest
+      - minikube image rm id-database:latest
       - minikube image load identities:0.1.0
-      - minikube image load database:latest
+      - minikube image load id-database:latest

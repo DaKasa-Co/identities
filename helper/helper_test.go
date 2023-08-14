@@ -1,8 +1,9 @@
-package client
+package helper
 
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -468,4 +469,11 @@ func TestPrepareUserRegisterDatas(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGenerateJWT(t *testing.T) {
+	t.Setenv("JWT_KEY", "someKey")
+
+	key, _ := GenerateJWT("username", "", "")
+	assert.True(t, len(strings.Split(key, ".")) == 3)
 }

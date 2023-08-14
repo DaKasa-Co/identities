@@ -6,7 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY main.go main.go
-COPY client/ client/
+COPY helper/ helper/
 COPY model/ model/
 COPY psql/ psql/
 COPY securities/ securities/

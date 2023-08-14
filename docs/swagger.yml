@@ -5,13 +5,11 @@ info:
   version: 0.1.0
 
 host: identities.dakasa.com
-basePath: /v1
+basePath: /api
 schemes:
   - http
   - https
 
-security:
-  - APIKeyHeader: []
 paths:
   /register:
     post:
@@ -154,11 +152,4 @@ paths:
           description: Recovery ticket has been expired
         500:
           description: Occurs unexpected internal error
-
-securityDefinitions:
-  APIKeyHeader:
-    type: apiKey
-    in: header
-    name: X-API-Key
-
   

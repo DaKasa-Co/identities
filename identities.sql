@@ -157,8 +157,9 @@ CREATE TABLE public.users (
     password character varying(225) NOT NULL,
     birthday date NOT NULL,
     phonenumber bigint NOT NULL,
-    address character varying(225),
-    picture character varying(150),
+    address character varying(225) NOT NULL,
+    avatar character varying(150) NOT NULL,
+    stamp character varying(10) NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -210,7 +211,7 @@ COPY public.recovery (id, user_id, validation, expire_at) FROM stdin;
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.users (id, name, username, email, password, birthday, phonenumber, address, picture, updated_at, created_at) FROM stdin;
+COPY public.users (id, name, username, email, password, birthday, phonenumber, address, avatar, stamp, updated_at, created_at) FROM stdin;
 \.
 
 
@@ -262,7 +263,7 @@ CREATE TRIGGER crypt_sensitive_data BEFORE INSERT OR UPDATE OF password ON publi
 -- Name: users update_date; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER update_date BEFORE INSERT OR UPDATE OF id, username, name, email, password, birthday, phonenumber, address, picture, updated_at, created_at ON public.users FOR EACH ROW EXECUTE FUNCTION public.updated_at();
+CREATE TRIGGER update_date BEFORE INSERT OR UPDATE OF id, username, name, email, password, birthday, phonenumber, address, avatar, stamp, updated_at, created_at ON public.users FOR EACH ROW EXECUTE FUNCTION public.updated_at();
 
 
 -- Completed on 2023-07-28 18:27:51 -03

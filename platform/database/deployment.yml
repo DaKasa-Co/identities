@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgresdb
+  name: identities-db
   namespace: postgres
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: postgresdb
+      app: identities-db
   template:
     metadata:
       labels:
-        app: postgresdb
+        app: identities-db
     spec:
       terminationGracePeriodSeconds: 30
-      serviceAccountName: dakasa-dba
+      serviceAccountName: identities-dba
       containers:
-      - name: postgresdb
+      - name: identities-db
         image: database
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5432
         envFrom:
         - configMapRef:
-            name: postgresdb-credentials
+            name: indentitiesdb-credentials
         volumeMounts:
         - mountPath: /var/lib/postgres/data
           name: db-data
       volumes:
         - name: db-data
           persistentVolumeClaim:
-            claimName: postgresdb-claim
+            claimName: identitiesdb-claim

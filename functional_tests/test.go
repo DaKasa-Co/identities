@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -51,27 +52,6 @@ func getFirstGeneratedTicket() (uuid.UUID, int) {
 	return rows[0].ID, rows[0].Validation
 }
 
-func registerMissingApiKey() error {
-	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 401 {
-		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request without API-Key should return 401 status")
-	}
-
-	fmt.Print("✅ Success\n\n")
-	return nil
-}
-
 func registerMissingRequiredFields() error {
 	fmt.Println("Send HTTP Request without some request field. Should return error")
 	body := []byte(`{"username": "teste", "email": "someemail@gmail.com"}`)
@@ -86,9 +66,14 @@ func registerMissingRequiredFields() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 400 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request without JSON should return 400 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -109,9 +94,14 @@ func registerSuccess() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 201 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request should return success with 201 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -132,9 +122,14 @@ func registerConflictWithUsernameFieldThatAlreadyExists() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 409 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with username field that already exists should return 409 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -155,9 +150,14 @@ func registerConflictWithEmailFieldThatAlreadyExists() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 409 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with email field that already exists should return 409 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -178,30 +178,14 @@ func registerConflictWithPhoneNumberFieldThatAlreadyExists() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 409 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with phoneNumber field that already exists should return 409 status")
-	}
-
-	fmt.Print("✅ Success\n\n")
-	return nil
-}
-
-func recoveryMissingApiKey() error {
-	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 401 {
-		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request without API-Key should return 401 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -222,9 +206,14 @@ func recoveryErrorUserNotFound() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 404 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with inexistent phone number should return 404 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -245,9 +234,14 @@ func recoverySuccessWithPhoneNumber() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 201 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with phone number should return 201 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -268,9 +262,14 @@ func recoverySuccessWithEmail() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 201 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with email should return 201 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -293,28 +292,7 @@ func recoverySuccessWithUsername() error {
 
 	if res.StatusCode != 201 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with username should return 201 status")
-	}
-
-	fmt.Print("✅ Success\n\n")
-	return nil
-}
-
-func challRecoveryMissingApiKey() error {
-	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 401 {
-		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request without API-Key should return 401 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -335,9 +313,14 @@ func challRecoveryErrorBadPassword() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 400 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with bad password should return 400 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -358,9 +341,14 @@ func challRecoveryWrongValidation() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 403 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with wrong validation number should return 403 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -381,30 +369,14 @@ func challRecoverySuccess() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 204 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with correct validation should return 204 status")
-	}
-
-	fmt.Print("✅ Success\n\n")
-	return nil
-}
-
-func loginMissingApiKey() error {
-	fmt.Println("Send HTTP Request without API-KEY. Should return error")
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 401 {
-		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request without API-Key should return 401 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -425,9 +397,14 @@ func loginWrongCredentials() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 403 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with incorrect credentials should return 403 status")
+		return errors.New(string(body))
 	}
 
 	fmt.Print("✅ Success\n\n")
@@ -448,9 +425,14 @@ func loginSuccess() error {
 		return err
 	}
 
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
 	if res.StatusCode != 200 {
 		fmt.Printf("Status: %d\n", res.StatusCode)
-		return errors.New("request with correct credentials should return 200 status")
+		return errors.New(string(body))
 	}
 
 	if res.Header.Get("X-JWT") == "" {
@@ -463,13 +445,7 @@ func loginSuccess() error {
 }
 
 func main() {
-	err := registerMissingApiKey()
-	if err != nil {
-		fmt.Println("❌ Fail")
-		log.Fatal(err)
-	}
-
-	err = registerMissingRequiredFields()
+	err := registerMissingRequiredFields()
 	if err != nil {
 		fmt.Println("❌ Fail")
 		log.Fatal(err)
@@ -494,12 +470,6 @@ func main() {
 	}
 
 	err = registerConflictWithPhoneNumberFieldThatAlreadyExists()
-	if err != nil {
-		fmt.Println("❌ Fail")
-		log.Fatal(err)
-	}
-
-	err = recoveryMissingApiKey()
 	if err != nil {
 		fmt.Println("❌ Fail")
 		log.Fatal(err)
@@ -530,12 +500,6 @@ func main() {
 	}
 
 	ID, Validation = getFirstGeneratedTicket()
-	err = challRecoveryMissingApiKey()
-	if err != nil {
-		fmt.Println("❌ Fail")
-		log.Fatal(err)
-	}
-
 	err = challRecoveryErrorBadPassword()
 	if err != nil {
 		fmt.Println("❌ Fail")
@@ -549,12 +513,6 @@ func main() {
 	}
 
 	err = challRecoverySuccess()
-	if err != nil {
-		fmt.Println("❌ Fail")
-		log.Fatal(err)
-	}
-
-	err = loginMissingApiKey()
 	if err != nil {
 		fmt.Println("❌ Fail")
 		log.Fatal(err)

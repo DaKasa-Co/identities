@@ -1,7 +1,8 @@
-package client
+package helper
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 	"unicode"
@@ -10,6 +11,7 @@ import (
 	"github.com/DaKasa-Co/identities/model"
 	database "github.com/DaKasa-Co/identities/psql"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // CheckRequiredFieldExists checks if required field has been writed
@@ -181,4 +183,23 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 // ErrorResponse is a auxiliary error response handler
 func ErrorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+// GenerateJWT just creates a valid JWT token test (function for test purpose)
+func GenerateJWT(username string, stamp string, avatar string) (string, error) {
+	JWTKeySecret := []byte(os.Getenv("JWT_KEY"))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss":    username,
+		"exp":    time.Now().Add(4 * time.Hour).Unix(),
+		"stamp":  stamp,
+		"avatar": avatar,
+	})
+
+	tokenString, err := token.SignedString(JWTKeySecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }

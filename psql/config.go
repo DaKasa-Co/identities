@@ -16,6 +16,7 @@ var (
 	Name     = os.Getenv("DB_NAME")
 	User     = os.Getenv("DB_USER")
 	Password = os.Getenv("DB_PASSWORD")
+	Host     = os.Getenv("DB_HOST")
 )
 
 // Users represents Users table
@@ -28,7 +29,8 @@ type Users struct {
 	Birthday    time.Time `field:"birthday"`
 	PhoneNumber int       `field:"phonenumber"`
 	Address     string    `field:"address"`
-	Avatar      string    `field:"picture"`
+	Avatar      string    `field:"avatar"`
+	Stamp       string    `field:"stamp"`
 	UpdateAt    time.Time `field:"update_at"`
 	CreatedAt   time.Time `field:"created_at"`
 }

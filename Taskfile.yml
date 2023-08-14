@@ -39,6 +39,10 @@ tasks:
       DB_HOST: localhost
       DB_PASSWORD: someAwesomePassword
 
+  lint:
+    cmds:
+      - golangci-lint run ./...
+
   gen-markdown:
     dir: docs
     cmds:

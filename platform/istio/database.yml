@@ -1,14 +1,14 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: identities-db
+  name: identities-database
   namespace: postgres
 spec:
   hosts:
-  - identities-db
+  - identities-database
   http:
     - route:
       - destination:
-          host: identities-db
+          host: identities-database
           port:
             number: 5432

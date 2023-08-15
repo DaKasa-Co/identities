@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: identities-db
+  name: identities-database
   namespace: postgres
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: identities-db
+      app: identities-database
   template:
     metadata:
       labels:
-        app: identities-db
+        app: identities-database
     spec:
       terminationGracePeriodSeconds: 30
       serviceAccountName: identities-dba
       containers:
-      - name: identities-db
+      - name: identities-database
         image: database
         imagePullPolicy: IfNotPresent
         ports:

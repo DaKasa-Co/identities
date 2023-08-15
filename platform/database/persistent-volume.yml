@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: identities-db
+  name: identities-database
   namespace: postgres
   labels:
-    app: identities-db
+    app: identities-database
 spec:
   storageClassName: manual
   capacity:

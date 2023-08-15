@@ -7,7 +7,7 @@ metadata:
 data:
   DB_NAME: identities
   DB_USER: postgres
-  DB_HOST: identities-db.postgres.svc.cluster.local
+  DB_HOST: identities-database.postgres.svc.cluster.local
   DB_PASSWORD: someAwesomePassword
   JWT_KEY: someEncryptedKey
   API_KEY: SomeApiKey

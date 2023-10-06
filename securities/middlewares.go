@@ -26,7 +26,7 @@ func CoreAuthenticate(c *gin.Context) {
 	})
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "detail": err.Error()})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "Unauthorized", "detail": err.Error()})
 		return
 	}
 
@@ -35,5 +35,5 @@ func CoreAuthenticate(c *gin.Context) {
 		return
 	}
 
-	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "detail": jwt.ErrInvalidKey.Error()})
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": "Unauthorized", "detail": jwt.ErrInvalidKey.Error()})
 }

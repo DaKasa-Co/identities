@@ -20,8 +20,17 @@ jobs:
           go-version: '1.20.5'
           cache: false
 
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+  
       - name: Running Unit Tests
-        run: go test ./...
+        run: task test:unit
+
+      - name: Validate API Docs
+        run: task validate-docs
 
   lint:
     runs-on: ubuntu-latest
@@ -44,17 +53,17 @@ jobs:
           go-version: '1.20.5'
           cache: false
 
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Building images
-        run: |
-          docker build . -t identities:0.1.0
-          docker build . -f Dockerfile.database -t id-database:latest
+        run: task build-images
 
       - name: Running Functional Tests
-        run: |
-          cd functional_tests
-          docker-compose up -d
-          sleep 7
-          go run test.go
+        run: task test:functional
         env:
           DB_NAME: identities
           DB_USER: postgres

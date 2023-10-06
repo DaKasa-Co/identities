@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 	"unicode"
 
@@ -12,6 +13,7 @@ import (
 	database "github.com/DaKasa-Co/identities/psql"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 // CheckRequiredFieldExists checks if required field has been writed
@@ -23,6 +25,11 @@ func CheckRequiredFieldExists(key string, value interface{}) error {
 		res = value == ""
 	case int:
 		res = value == 0
+	case uuid.UUID:
+		res = value == uuid.Nil
+	case []interface{}:
+		arrVal := value
+		res = len(arrVal.([]interface{})) == 0
 	default:
 		res = value == nil
 	}
@@ -182,18 +189,39 @@ func PrepareUserRegisterDatas(infos model.Identity) (database.Users, error) {
 
 // ErrorResponse is a auxiliary error response handler
 func ErrorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
+	return gin.H{"msg": err.Error()}
+}
+
+// MultipleErrorResponse is a auxiliary error responseHandler
+func MultipleErrorResponse(errs []error) gin.H {
+	h := gin.H{}
+	for i, err := range errs {
+		if err == nil {
+			continue
+		}
+
+		h["msg"+strconv.Itoa(i)] = err
+	}
+
+	return h
+}
+
+// MsgResponse is a auxiliary custom message response handler
+func MsgResponse(msg string) gin.H {
+	return gin.H{"msg": msg}
 }
 
 // GenerateJWT just creates a valid JWT token test (function for test purpose)
-func GenerateJWT(username string, stamp string, avatar string) (string, error) {
+func GenerateJWT(id uuid.UUID, username string, stamp string, avatar string, birth time.Time) (string, error) {
 	JWTKeySecret := []byte(os.Getenv("JWT_KEY"))
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":     id.String(),
 		"iss":    username,
-		"exp":    time.Now().Add(4 * time.Hour).Unix(),
+		"exp":    time.Now().Add(12 * time.Hour).Unix(),
 		"stamp":  stamp,
 		"avatar": avatar,
+		"age":    time.Now().Year() - birth.Year(),
 	})
 
 	tokenString, err := token.SignedString(JWTKeySecret)

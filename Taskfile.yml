@@ -12,7 +12,7 @@ tasks:
       - go test ../...
       - docker-compose up -d 
       - sleep 7
-      - cmd: go run test.go
+      - cmd: go run *.go
         ignore_error: true
       - docker-compose down
     env:
@@ -30,7 +30,7 @@ tasks:
     cmds:
       - docker-compose up -d 
       - sleep 7
-      - cmd: go run test.go
+      - cmd: go run *.go
         ignore_error: true
       - docker-compose down
     env:
@@ -47,6 +47,16 @@ tasks:
     dir: docs
     cmds:
       - swagger generate markdown
+  
+  serve-docs:
+    dir: docs
+    cmds:
+      - swagger serve swagger.yml
+
+  validate-docs:
+    dir: docs
+    cmds:
+      - swagger validate swagger.yml
 
   up:
     dir: functional_tests

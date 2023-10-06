@@ -27,30 +27,14 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		if req.Email != "" {
-			if err = helper.CheckIsValidEmail(req.Email); err != nil {
-				c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
-				return
-			}
-		} else {
-			if err = helper.CheckIsValidUsername(req.Username); err != nil {
-				c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
-				return
-			}
-		}
-
-		if err = helper.CheckIsValidPassword(req.Password); err != nil {
-			c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
-			return
-		}
-
 		db, err := database.OpenSQL()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
+		defer db.Close()
 
-		query := "SELECT username, avatar, stamp  FROM users WHERE " +
+		query := "SELECT id, username, avatar, stamp, birthday FROM users WHERE " +
 			"(email = $1 OR username = $2) AND password = crypt($3, password);"
 		res, err := db.Query(query, req.Email, req.Username, req.Password)
 		if err != nil {
@@ -59,33 +43,35 @@ func Login() gin.HandlerFunc {
 		}
 
 		defer res.Close()
-		rows := []database.Users{}
+		row := new(database.Users)
 		for res.Next() {
-			row := new(database.Users)
-
-			err = res.Scan(&row.Username, &row.Avatar, &row.Stamp)
+			err = res.Scan(&row.ID, &row.Username, &row.Avatar, &row.Stamp, &row.Birthday)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 				return
 			}
-
-			rows = append(rows, *row)
 		}
 
-		if len(rows) != 1 {
+		if row.ID == uuid.Nil {
 			err = fmt.Errorf("incorrect credentials")
 			c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
 			return
 		}
 
-		jwt, err := helper.GenerateJWT(rows[0].Username, rows[0].Avatar, rows[0].Stamp)
+		jwt, err := helper.GenerateJWT(
+			row.ID,
+			row.Username,
+			row.Avatar,
+			row.Stamp,
+			row.Birthday,
+		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
 
 		c.Header("X-JWT", jwt)
-		c.JSON(http.StatusOK, nil)
+		c.JSON(http.StatusOK, helper.MsgResponse("user has logged in with success"))
 	}
 }
 
@@ -110,6 +96,7 @@ func Register() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
+		defer db.Close()
 
 		checkQuery := "SELECT id FROM users WHERE email=$1 OR username=$2 OR phonenumber=$3"
 		res, err := db.Query(checkQuery, s.Email, s.Username, s.PhoneNumber)
@@ -147,7 +134,7 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, nil)
+		c.JSON(http.StatusCreated, helper.MsgResponse("register user with success"))
 	}
 }
 
@@ -166,6 +153,7 @@ func OpenAccountRecovery() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
+		defer db.Close()
 
 		query := "SELECT id, email FROM users WHERE " +
 			"email = $1 OR username = $2 OR phonenumber = $3;"
@@ -211,7 +199,7 @@ func OpenAccountRecovery() gin.HandlerFunc {
 			}
 		}
 
-		c.JSON(http.StatusCreated, "{\"id\": \""+id.String()+"\"}")
+		c.JSON(http.StatusCreated, `{"id": "`+id.String()+`"}`)
 	}
 }
 
@@ -235,6 +223,20 @@ func UpdateByRecovery() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
+		defer db.Close()
+
+		tx, err := db.Begin()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			return
+		}
+		defer func() {
+			err = tx.Rollback()
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+				return
+			}
+		}()
 
 		query := "SELECT user_id, expire_at FROM recovery WHERE " +
 			"id = $1 AND validation = $2;"
@@ -265,7 +267,7 @@ func UpdateByRecovery() gin.HandlerFunc {
 		}
 
 		query = "DELETE FROM recovery WHERE id = $1;"
-		_, err = db.Exec(query, req.Status.Ticket)
+		_, err = tx.Exec(query, req.Status.Ticket)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
@@ -278,12 +280,18 @@ func UpdateByRecovery() gin.HandlerFunc {
 		}
 
 		query = "UPDATE users SET password = $1 WHERE id = $2;"
-		_, err = db.Exec(query, req.Password, rows[0].UserID)
+		_, err = tx.Exec(query, req.Password, rows[0].UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
 
-		c.JSON(http.StatusNoContent, nil)
+		err = tx.Commit()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, helper.MsgResponse("recovery account with success"))
 	}
 }

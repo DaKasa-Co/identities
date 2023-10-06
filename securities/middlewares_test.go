@@ -6,10 +6,12 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/DaKasa-Co/identities/helper"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
+	"github.com/google/uuid"
 )
 
 // TestCoreAuthentication tests the middleware of api key header auth.
@@ -38,7 +40,7 @@ func TestCoreAuthenticate(t *testing.T) {
 			Header: make(http.Header),
 		}
 
-		jwt, err := helper.GenerateJWT("usern", "", "")
+		jwt, err := helper.GenerateJWT(uuid.New(), "usern", "", "", time.Now().AddDate(-16, 0, 0))
 		if err != nil {
 			log.Fatal(err)
 		}

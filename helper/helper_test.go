@@ -12,6 +12,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/test"
 	"github.com/gin-gonic/gin"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -296,7 +297,7 @@ func TestCheckBirthday(t *testing.T) {
 
 func TestErrorResponse(t *testing.T) {
 	RespectiveError := errors.New("boom")
-	RespectiveResult := gin.H{"error": RespectiveError.Error()}
+	RespectiveResult := gin.H{"msg": RespectiveError.Error()}
 
 	result := ErrorResponse(RespectiveError)
 
@@ -474,6 +475,6 @@ func TestPrepareUserRegisterDatas(t *testing.T) {
 func TestGenerateJWT(t *testing.T) {
 	t.Setenv("JWT_KEY", "someKey")
 
-	key, _ := GenerateJWT("username", "", "")
+	key, _ := GenerateJWT(uuid.New(), "username", "", "", time.Now().AddDate(-17, 0, 0))
 	assert.True(t, len(strings.Split(key, ".")) == 3)
 }

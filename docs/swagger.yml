@@ -17,40 +17,11 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: formData
-          name: name
-          type: string
-          required: true
-          description: The users complete name
-        - in: formData
-          name: username
-          type: string
-          required: true
-          description: The username to be used in project
-        - in: formData
-          name: email
-          type: string
-          required: true
-        - in: formData
-          name: password
-          type: string
-          required: true
-          description: The password is used to log in
-        - in: formData
-          name: phoneNumber
-          type: integer
-          required: true
-        - in: formData
-          name: birthday
-          type: string
-          required: true
-        - in: formData
-          name: address
-          type: string
-        - in: formData
-          name: avatar
-          type: string
-          description: Image or link that will be used to represents avatar users account
+        - in: body
+          name: register
+          description: The register body
+          schema:
+            $ref: '#/definitions/Register'
       responses:
         201:
           description: Created user with success
@@ -67,16 +38,11 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: formData
-          name: user
-          type: string
-          required: true
-          description: The user identity field. Can be informed email ou username
-        - in: formData
-          name: password
-          type: string
-          required: true
-          description: The users password. Used to check if who is attemped to sign in is really the account owner
+        - in: body
+          name: login
+          description: The login body
+          schema:
+            $ref: '#/definitions/Login'
       responses:
         200:
           description: Logged in with success
@@ -96,12 +62,14 @@ paths:
       summary: Open recovery account process
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
-        - in: formData
-          name: user
-          type: string
-          required: true
-          description: The user identity field. Can be informed email, username or phonenumber
+        - in: body
+          name: recovery
+          description: The recovery body
+          schema:
+            $ref: '#/definitions/Recovery'
       responses:
         201:
           description: Created ticket recovery with success
@@ -126,23 +94,13 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: formData
-          name: ticket
-          type: string
-          required: true
-          description: The ticket identity field
-        - in: formData
-          name: password
-          type: string
-          required: true
-          description: New account password
-        - in: formData
-          name: validation
-          type: integer
-          required: true
-          description: A random validation integer. The number get's a range between 100000 ~ 999999
+        - in: body
+          name: chall
+          description: The challenge recovery body
+          schema:
+            $ref: '#/definitions/Chall'
       responses:
-        204:
+        200:
           description: Recovery account with success
         400:
           description: requested body reaches malformed
@@ -152,4 +110,77 @@ paths:
           description: Recovery ticket has been expired
         500:
           description: Occurs unexpected internal error
-  
+
+definitions: 
+  Register:
+    type: object
+    required:
+      - name
+      - username
+      - email
+      - password
+      - birthday
+      - phoneNumber
+    properties:
+      name:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+        example: user@mail.com
+      password:
+        type: string
+      birthday:
+        type: string
+        format: date
+      phoneNumber:
+        type: integer
+        example: 912345678
+  Login:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+        example: user@mail.com
+      password:
+        type: string
+  Recovery:
+    type: object
+    properties:
+      phoneNumber:
+        type: integer
+        example: 912345678
+      email:
+        type: string
+        example: user@mail.com
+      username:
+        type: string
+  Chall:
+    type: object
+    required:
+      - password
+      - status
+    properties:
+      password:
+        type: string
+      status:
+        type: object
+        required:
+          - ticket
+          - validation
+        properties:
+          ticket:
+            type: string
+            format: uuid
+          validation:
+            type: object
+            required:
+              - tmp
+            properties:
+              tmp:
+                type: string
+                example: "123456"

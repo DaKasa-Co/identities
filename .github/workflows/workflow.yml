@@ -29,8 +29,10 @@ jobs:
       - name: Running Unit Tests
         run: task test:unit
 
-      - name: Validate API Docs
-        run: task validate-docs
+      - name: Validate OpenAPI definition
+        uses: char0n/swagger-editor-validate@v1
+        with:
+          definition-file: docs/swagger.yml
 
   lint:
     runs-on: ubuntu-latest

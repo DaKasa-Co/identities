@@ -49,7 +49,7 @@ func TestRegister() {
 func registerMissingRequiredFields() error {
 	fmt.Println("💡 Request without some request field. Should return error")
 	body := []byte(`{"username": "teste", "email": "someemail@gmail.com"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -81,7 +81,7 @@ func registerMissingRequiredFields() error {
 func registerSuccess() error {
 	fmt.Println("💡 Request with all datas correct. Should return success")
 	body := []byte(`{"name": "gio silva", "username": "gio._.", "email": "someemail@gmail.com", "password": "someGoodPassword123%", "birthday": "2003-05-11", "phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -113,7 +113,7 @@ func registerSuccess() error {
 func registerConflictWithUsernameFieldThatAlreadyExists() error {
 	fmt.Println("💡 Username that already exists in database. Should return error")
 	body := []byte(`{"name": "gio silva", "username": "gio._.", "email": "someemasil@gmail.com", "password": "someGoodPassword123%", "birthday": "2003-05-11", "phoneNumber": 12918209321901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func registerConflictWithUsernameFieldThatAlreadyExists() error {
 func registerConflictWithEmailFieldThatAlreadyExists() error {
 	fmt.Println("💡 Email that already exists in database. Should return error")
 	body := []byte(`{"name": "gio silva", "username": "gio._..", "email": "someemail@gmail.com", "password": "someGoodPassword123%", "birthday": "2003-05-11", "phoneNumber": 12918230931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -177,7 +177,7 @@ func registerConflictWithEmailFieldThatAlreadyExists() error {
 func registerConflictWithPhoneNumberFieldThatAlreadyExists() error {
 	fmt.Println("💡 PhoneNumber that already exists in database. Should return error. Should return error")
 	body := []byte(`{"name": "gio silva", "username": "gio._..", "email": "someemasil@gmail.com", "password": "someGoodPassword123%", "birthday": "2003-05-11", "phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/register", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/register", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -226,7 +226,7 @@ func TestLogin() {
 func loginIncorrectCredentials() error {
 	fmt.Println("💡 Try login but incorrect credentials. Should return error")
 	body := []byte(`{"email": "someemail@gmail.com", "password": "someBadPassword"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/login", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -259,7 +259,7 @@ func loginIncorrectCredentials() error {
 func loginWithSuccess() error {
 	fmt.Println("💡 Try login with correct credentials. Should return success")
 	body := []byte(`{"email": "someemail@gmail.com", "password": "GoodPass123#"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/login", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/login", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -320,7 +320,7 @@ func TestChall() {
 func challRecoveryErrorBadPassword() error {
 	fmt.Println("💡 New bad password. Should return error")
 	body := []byte(`{"password": "BadPass123"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/chall-recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -354,7 +354,7 @@ func challRecoveryWrongValidation() error {
 	ID, _ := getFirstGeneratedTicket()
 
 	body := []byte(`{"password": "BadPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": 222}}}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/chall-recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -388,7 +388,7 @@ func challRecoverySuccess() error {
 	ID, Validation := getFirstGeneratedTicket()
 
 	body := []byte(`{"password": "GoodPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": ` + strconv.Itoa(Validation) + `}}}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/chall-recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -448,7 +448,7 @@ func TestRecovery() {
 func recoveryErrorUserNotFound() error {
 	fmt.Println("💡 Try recovery account with phone number that doens't exist in user database. Should return error")
 	body := []byte(`{"phoneNumber": 12345}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -480,7 +480,7 @@ func recoveryErrorUserNotFound() error {
 func recoverySuccessWithPhoneNumber() error {
 	fmt.Println("💡 Create ticket recovery with phone number. Should return success.")
 	body := []byte(`{"phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -507,7 +507,7 @@ func recoverySuccessWithPhoneNumber() error {
 func recoverySuccessWithEmail() error {
 	fmt.Println("💡 Create ticket recovery with email. Should return success.")
 	body := []byte(`{"email": "someemail@gmail.com"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -534,7 +534,7 @@ func recoverySuccessWithEmail() error {
 func recoverySuccessWithUsername() error {
 	fmt.Println("💡 Create ticket recovery with username. Should return success.")
 	body := []byte(`{"username": "gio._."}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:5173/api/recovery", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err

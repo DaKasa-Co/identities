@@ -240,13 +240,6 @@ func UpdateByRecovery() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return
 		}
-		defer func() {
-			err = tx.Rollback()
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
-				return
-			}
-		}()
 
 		query := "SELECT user_id, expire_at FROM recovery WHERE " +
 			"id = $1 AND validation = $2;"
@@ -279,26 +272,26 @@ func UpdateByRecovery() gin.HandlerFunc {
 		query = "DELETE FROM recovery WHERE id = $1;"
 		_, err = tx.Exec(query, req.Status.Ticket)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			c.JSON(http.StatusInternalServerError, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return
 		}
 
 		if rows[0].ExpireAt.Before(time.Now()) {
 			err = fmt.Errorf("recovery request has been expired")
-			c.JSON(http.StatusGone, helper.ErrorResponse(err))
+			c.JSON(http.StatusGone, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return
 		}
 
 		query = "UPDATE users SET password = $1 WHERE id = $2;"
 		_, err = tx.Exec(query, req.Password, rows[0].UserID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			c.JSON(http.StatusInternalServerError, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return
 		}
 
 		err = tx.Commit()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			c.JSON(http.StatusInternalServerError, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return
 		}
 

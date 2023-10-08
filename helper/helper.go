@@ -114,9 +114,9 @@ func CheckIsValidPassword(password string) error {
 	return nil
 }
 
-// CheckBirthday check if respective user has an age between 13 ~ 213 years
+// CheckBirthday check if respective user has an age between 13 ~ 313 years
 func CheckBirthday(birth time.Time) error {
-	start := time.Now().AddDate(-213, 0, 0)
+	start := time.Now().AddDate(-313, 0, 0)
 	end := time.Now().AddDate(-13, 0, 0)
 
 	if birth.Before(start) || birth.After(end) {

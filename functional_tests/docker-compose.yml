@@ -25,6 +25,8 @@ services:
       - DB_USER=postgres
       - DB_HOST=localhost
       - DB_PASSWORD=someAwesomePassword
+      - MFE_DOMAIN=localhost
+      - MFE_PORT=5173
       - JWT_KEY=someEncryptedKey
       - API_KEY=SomeApiKey
       - CLOUDINARY_CLOUD_NAME=<YOUR CLOUD NAME HERE>

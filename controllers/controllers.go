@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/DaKasa-Co/identities/external"
@@ -125,10 +126,19 @@ func Register() gin.HandlerFunc {
 			return
 		}
 
+		var pathAvatar string
+		if strings.Contains(s.Avatar, "base64") {
+			pathAvatar, err = external.LoadedStorage.UploadMedia(s.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+				return
+			}
+		}
+
 		query := "INSERT INTO users" +
 			"(name, username, email, password, birthday, phonenumber, address, avatar, stamp) " +
 			"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, '');"
-		_, err = db.Exec(query, s.Name, s.Username, s.Email, s.Password, s.Birthday, s.PhoneNumber, s.Address, s.Avatar)
+		_, err = db.Exec(query, s.Name, s.Username, s.Email, s.Password, s.Birthday, s.PhoneNumber, s.Address, pathAvatar)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 			return

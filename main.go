@@ -14,7 +14,7 @@ func main() {
 	r.POST("/api/recovery", controllers.OpenAccountRecovery())
 	r.POST("/api/chall-recovery", controllers.UpdateByRecovery())
 
-	if err := r.Run(":9080"); err != nil {
+	if err := r.Run(":5173"); err != nil {
 		panic(err)
 	}
 }

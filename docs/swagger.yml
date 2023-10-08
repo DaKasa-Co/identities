@@ -137,15 +137,22 @@ definitions:
       phoneNumber:
         type: integer
         example: 912345678
+      address:
+        type: string
+        example: Rua dos desenvolvedores, N 1024, Brasil, 01010-101
+      avatar:
+        type: string
+        example: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA...
   Login:
     type: object
     required:
-      - email
       - password
     properties:
       email:
         type: string
         example: user@mail.com
+      username:
+        type: string
       password:
         type: string
   Recovery:

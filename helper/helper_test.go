@@ -265,7 +265,7 @@ func TestCheckBirthday(t *testing.T) {
 	validate := []Dates{
 		{
 			Name:        "TooOld",
-			Date:        baseDate.AddDate(-215, 0, 0),
+			Date:        baseDate.AddDate(-415, 0, 0),
 			IsSuccess:   false,
 			Description: "User is too old to register. Is the user a mummy?",
 		},

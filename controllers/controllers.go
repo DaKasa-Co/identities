@@ -213,6 +213,64 @@ func OpenAccountRecovery() gin.HandlerFunc {
 	}
 }
 
+// CheckTicketRecovery validates if user requester is really owner of ticket account recovery
+func CheckTicketRecovery() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req := model.Identity{}
+		err := c.ShouldBindJSON(&req)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, helper.ErrorResponse(err))
+			return
+		}
+
+		db, err := database.OpenSQL()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			return
+		}
+		defer db.Close()
+
+		query := "SELECT user_id, expire_at FROM recovery WHERE " +
+			"id = $1 AND validation = $2;"
+		res, err := db.Query(query, req.Status.Ticket, req.Status.Validation.Tmp)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+			return
+		}
+		defer res.Close()
+
+		row := database.Recovery{}
+		for res.Next() {
+			err = res.Scan(&row.UserID, &row.ExpireAt)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+				return
+			}
+		}
+
+		if row.UserID == uuid.Nil {
+			err = fmt.Errorf("failed in validate ticket recovery")
+			c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
+			return
+		}
+
+		if row.ExpireAt.Before(time.Now()) {
+			query = "DELETE FROM recovery WHERE id = $1;"
+			_, err = db.Exec(query, req.Status.Ticket)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
+				return
+			}
+
+			err = fmt.Errorf("recovery request has been expired")
+			c.JSON(http.StatusGone, helper.ErrorResponse(err))
+			return
+		}
+
+		c.JSON(http.StatusOK, helper.MsgResponse("validate ticket with success"))
+	}
+}
+
 // UpdateByRecovery checks if who request ticket recovery is the account's owner. In positive case, updates to a new inserted password
 func UpdateByRecovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -250,20 +308,16 @@ func UpdateByRecovery() gin.HandlerFunc {
 		}
 
 		defer res.Close()
-		rows := []database.Recovery{}
+		row := database.Recovery{}
 		for res.Next() {
-			row := new(database.Recovery)
-
 			err = res.Scan(&row.UserID, &row.ExpireAt)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, helper.ErrorResponse(err))
 				return
 			}
-
-			rows = append(rows, *row)
 		}
 
-		if len(rows) != 1 {
+		if row.UserID == uuid.Nil {
 			err = fmt.Errorf("failed in recovery validation")
 			c.JSON(http.StatusForbidden, helper.ErrorResponse(err))
 			return
@@ -276,14 +330,14 @@ func UpdateByRecovery() gin.HandlerFunc {
 			return
 		}
 
-		if rows[0].ExpireAt.Before(time.Now()) {
+		if row.ExpireAt.Before(time.Now()) {
 			err = fmt.Errorf("recovery request has been expired")
 			c.JSON(http.StatusGone, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return
 		}
 
 		query = "UPDATE users SET password = $1 WHERE id = $2;"
-		_, err = tx.Exec(query, req.Password, rows[0].UserID)
+		_, err = tx.Exec(query, req.Password, row.UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, helper.MultipleErrorResponse([]error{err, tx.Rollback()}))
 			return

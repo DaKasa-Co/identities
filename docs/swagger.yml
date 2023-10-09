@@ -57,7 +57,7 @@ paths:
         500:
           description: Occurs unexpected internal error
 
-  /recovery:
+  /recovery/create:
     post:
       summary: Open recovery account process
       consumes:
@@ -88,9 +88,32 @@ paths:
         503:
           description: Email service is unavailable and fails in sent recovery message.
   
-  /chall-recovery:
+  /recovery/validate:
     post:
-      summary: Checks if who request recovery ticket are the account's owner
+      summary: Validates ticket recovery
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: chall
+          description: The validate ticket recovery body
+          schema:
+            $ref: '#/definitions/ValidateRecovery'
+      responses:
+        200:
+          description: Validates recovery ticket with success
+        400:
+          description: requested body reaches malformed
+        403:
+          description: incorrect validation number or ticket
+        410:
+          description: Recovery ticket has been expired
+        500:
+          description: Occurs unexpected internal error
+
+  /recovery/chall:
+    post:
+      summary: Challenge ticket recovery
       consumes:
         - application/json
       parameters:
@@ -105,7 +128,7 @@ paths:
         400:
           description: requested body reaches malformed
         403:
-          description: incorrect validation number
+          description: incorrect validation number or ticket
         410:
           description: Recovery ticket has been expired
         500:
@@ -166,6 +189,28 @@ definitions:
         example: user@mail.com
       username:
         type: string
+  ValidateRecovery:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        type: object
+        required:
+          - ticket
+          - validation
+        properties:
+          ticket:
+            type: string
+            format: uuid
+          validation:
+            type: object
+            required:
+              - tmp
+            properties:
+              tmp:
+                type: integer
+                example: 123456
   Chall:
     type: object
     required:
@@ -189,5 +234,5 @@ definitions:
               - tmp
             properties:
               tmp:
-                type: string
-                example: "123456"
+                type: integer
+                example: 123456

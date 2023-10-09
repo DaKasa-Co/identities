@@ -13,8 +13,9 @@ import (
 
 func main() {
 	TestRegister()
-	TestRecovery()
-	TestChall()
+	TestCreateRecoveryTicket()
+	TestValidateRecoveryTicket()
+	TestChallengeRecoveryTicket()
 	TestLogin()
 }
 

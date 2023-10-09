@@ -294,8 +294,92 @@ func loginWithSuccess() error {
 	return nil
 }
 
+// @@ VALIDATE RECOVERY TICKET @@
+func TestValidateRecoveryTicket() {
+	fmt.Println("🧪 VALIDATE TICKET RECOVERY 🧪")
+	err := validateRecoveryWrongValidation()
+	if err != nil {
+		fmt.Println("❌ Fail")
+		log.Fatal(err)
+	}
+
+	err = validateRecoverySuccess()
+	if err != nil {
+		fmt.Println("❌ Fail")
+		log.Fatal(err)
+	}
+	fmt.Print("✅ Success\n\n")
+}
+
+func validateRecoveryWrongValidation() error {
+	fmt.Println("💡 Try validate ticket with incorrect validation number. Should return error")
+	ID, _ := getFirstGeneratedTicket()
+
+	body := []byte(`{"password": "BadPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": 222}}}`)
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/validate", bytes.NewBuffer(body))
+	req.Header.Add("X-API-Key", "SomeApiKey")
+	if err != nil {
+		return err
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 403 {
+		fmt.Println(string(body))
+		return fmt.Errorf("\n\n-got: %d\n+want: %d", res.StatusCode, 403)
+	}
+
+	desiredResponse := `{"msg":"failed in validate ticket recovery"}`
+	if string(body) != desiredResponse {
+		return fmt.Errorf("\n\n-got: %s\n+want: %s", string(body), desiredResponse)
+	}
+
+	return nil
+}
+
+func validateRecoverySuccess() error {
+	fmt.Println("💡 Validate recovery ticket with success")
+	ID, Validation := getFirstGeneratedTicket()
+
+	body := []byte(`{"password": "GoodPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": ` + strconv.Itoa(Validation) + `}}}`)
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/validate", bytes.NewBuffer(body))
+	req.Header.Add("X-API-Key", "SomeApiKey")
+	if err != nil {
+		return err
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	body, err = io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		fmt.Println(string(body))
+		return fmt.Errorf("\n\n-got: %d\n+want: %d", res.StatusCode, 200)
+	}
+
+	desiredResponse := `{"msg":"validate ticket with success"}`
+	if string(body) != desiredResponse {
+		return fmt.Errorf("\n\n-got: %s\n+want: %s", string(body), desiredResponse)
+	}
+	return nil
+}
+
 // @@ CHALL @@
-func TestChall() {
+func TestChallengeRecoveryTicket() {
 	fmt.Println("🧪 CHALL RECOVERY 🧪")
 	err := challRecoveryErrorBadPassword()
 	if err != nil {
@@ -320,7 +404,7 @@ func TestChall() {
 func challRecoveryErrorBadPassword() error {
 	fmt.Println("💡 New bad password. Should return error")
 	body := []byte(`{"password": "BadPass123"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/chall", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -354,7 +438,7 @@ func challRecoveryWrongValidation() error {
 	ID, _ := getFirstGeneratedTicket()
 
 	body := []byte(`{"password": "BadPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": 222}}}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/chall", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -388,7 +472,7 @@ func challRecoverySuccess() error {
 	ID, Validation := getFirstGeneratedTicket()
 
 	body := []byte(`{"password": "GoodPass123#", "status": {"ticket": "` + ID.String() + `", "validation": {"tmp": ` + strconv.Itoa(Validation) + `}}}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/chall-recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/chall", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -417,7 +501,7 @@ func challRecoverySuccess() error {
 }
 
 // @@ INIT RECOVERY @@
-func TestRecovery() {
+func TestCreateRecoveryTicket() {
 	fmt.Println("🧪 INIT RECOVERY 🧪")
 	err := recoveryErrorUserNotFound()
 	if err != nil {
@@ -448,7 +532,7 @@ func TestRecovery() {
 func recoveryErrorUserNotFound() error {
 	fmt.Println("💡 Try recovery account with phone number that doens't exist in user database. Should return error")
 	body := []byte(`{"phoneNumber": 12345}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/create", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -480,7 +564,7 @@ func recoveryErrorUserNotFound() error {
 func recoverySuccessWithPhoneNumber() error {
 	fmt.Println("💡 Create ticket recovery with phone number. Should return success.")
 	body := []byte(`{"phoneNumber": 1291820931901823}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/create", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -507,7 +591,7 @@ func recoverySuccessWithPhoneNumber() error {
 func recoverySuccessWithEmail() error {
 	fmt.Println("💡 Create ticket recovery with email. Should return success.")
 	body := []byte(`{"email": "someemail@gmail.com"}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/create", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
@@ -534,7 +618,7 @@ func recoverySuccessWithEmail() error {
 func recoverySuccessWithUsername() error {
 	fmt.Println("💡 Create ticket recovery with username. Should return success.")
 	body := []byte(`{"username": "gio._."}`)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, "http://localhost:9080/api/recovery/create", bytes.NewBuffer(body))
 	req.Header.Add("X-API-Key", "SomeApiKey")
 	if err != nil {
 		return err
